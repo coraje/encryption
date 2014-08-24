@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- MemberDAOImpl 에서 호출할때 사용 -->
+<sqlMap namespace="Encryption">
+
+	<!-- 참조변수와 클래스경로 -->
+	
+	<typeAlias alias="policyVO" type="kr.co.hitcom.rent.encryption.PolicyVO" />
+	
+	<typeAlias alias="keyVO" type="kr.co.hitcom.rent.encryption.KeyVO" />
+
+	<typeAlias alias="accessControlVO" type="kr.co.hitcom.rent.encryption.AccessControlVO" />
+	
+	
+	<!-- GlobalPolicy SQL -->
+	<insert id="insertGlobalPolicy" parameterClass="policyVO">
+
+		INSERT INTO GLOBAL_ENCRYPT_POLICY
+					(ALGORITHM, 
+					OPERATE_MODE, 
+					SYSTEM_APPLY_DATE)
+		
+			VALUES (#algorithm#, 
+					#operate_mode#, 
+					#system_apply_date#);
+
+	</insert>
+	
+	<!-- ColumnPolicy SQL -->
+	<insert id="insertColumnPolicy" parameterClass="policyVO">
+
+		INSERT INTO COLUMN_ENCRYPT_POLICY
+					(OWNER, 
+					TABLE_NAME, 
+					COLUMN_NAME, 
+					HASH_CHECK, 
+					HASH_SALT, 
+					IV_CHECK, 
+					IV_VALUE, 
+					PARTIAL_ENCRYPT_CHECK, 
+					PARTIAL_ENCRYPT_LENGTH, 
+					MASK_CHECK, 
+					MASK_DIGIT, 
+					MASK_VALUE,
+					SYSTEM_APPLY_DATE)
+					
+		VALUES		(#owner#, 
+					#table_name#, 
+					#column_name#, 
+					#hash_check#, 
+					#hash_salt#, 
+					#iv_check#, 
+					#iv_value#, 
+					#partial_encrypt_check#, 
+					#partial_encrypt_length#, 
+					#mask_check#, 
+					#mask_digit#, 
+					#mask_value#,
+					#system_apply_date#);
+
+	</insert>
+	
+	<insert id="insertKey" parameterClass="keyVO">
+
+		INSERT INTO DATA_ENCRYPT_KEY
+					(ENCRYPT_KEY, 
+					CREATE_DATE)
+					
+		VALUES		(#encrypt_key#, 
+					#create_date#);
+
+	</insert>
+	
+	<insert id="insertKEK" parameterClass="keyVO">
+
+		INSERT INTO KEY_ENCRYPT_KEY
+					(ENCRYPT_KEY, 
+					CREATE_DATE)
+					
+		VALUES		(#encrypt_key#, 
+					#create_date#);
+
+	</insert>
+	
+	<insert id="insertPolicyAC" parameterClass="accessControlVO">
+
+		INSERT INTO POLICY_ACCESS_CONTROL
+					(CONNECT_IP, 
+					CONNECT_DB_USER,
+					START_TIME,
+					END_TIME,
+					CONNECT_PROGRAM_NAME)
+					
+		VALUES		(#connect_ip#, 
+					#connect_db_user#,
+					#start_time#,
+					#end_time#,
+					#connect_program_name#);
+
+	</insert>
+	
+	<insert id="insertBehaviorAC" parameterClass="accessControlVO">
+
+		INSERT INTO BEHAVIOR_ACCESS_CONTROL
+					(CONNECT_IP, 
+					CONNECT_DB_USER,
+					SMALL_TIME,
+					SMALL_TIME_COUNT,
+					BIG_TIME,
+					BIG_TIME_COUNT)
+					
+		VALUES		(#connect_ip#, 
+					#connect_db_user#,
+					#small_time#,
+					#small_time_count#,
+					#big_time#,
+					#big_time_count#);
+
+	</insert>
+	
+</sqlMap>

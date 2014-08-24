@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- MemberDAOImpl 에서 호출할때 사용 -->
+<sqlMap namespace="Product">
+
+	<!-- 참조변수와 클래스경로 -->
+	<typeAlias alias="productVO" type="kr.co.hitcom.rent.product.ProductVO" />
+
+
+	<!-- Notice 등록 SQL -->
+	<insert id="insertProduct" parameterClass="productVO">
+
+		INSERT INTO PRODUCT
+					(PRODUCT_PRICE, 
+					PRODUCT_TITLE, 
+					PRODUCT_CONTENT, 
+					REGISTRATION_DATE,
+					PRODUCT_MAINIMAGE_PATH,
+					PRODUCT_TEXTIMAGE_PATH,
+					PRODUCT_SUBIMAGE_PATH, 
+					PRODUCT_DATE, 
+					PRODUCT_COMMENT,
+					PRODUCT_STATUS)
+			 VALUES (#product_price#, 
+			 		#product_title#, 
+			 		#product_content#,
+					now(), 
+					#product_mainimage_path#,
+					#product_textimage_path#,
+					#product_subimage_path#,  
+					#product_date#,
+					#product_comment#,
+					#product_status#);
+
+	</insert>
+	
+	<!-- PRODUCT 삭제 SQL -->
+	<update id="deleteProduct" parameterClass="Long">
+         
+	    UPDATE PRODUCT
+   		   SET DELETE_DATE = now()
+ 		  WHERE PRODUCT_ID = #id#
+
+	</update>
+	
+	<!-- select Product SQL -->
+	<select id="selectProduct" parameterClass="Long" resultClass="productVO">
+	    
+	    	SELECT  PRODUCT_ID,
+				PRODUCT_TITLE,
+	      		PRODUCT_COMMENT,
+	      		PRODUCT_CONTENT,
+	      		PRODUCT_PRICE,
+	      		PRODUCT_MAINIMAGE_PATH,
+	      		PRODUCT_TEXTIMAGE_PATH,
+				PRODUCT_SUBIMAGE_PATH,
+	      		PRODUCT_DATE,
+	      		PROGRESS,
+	      		PRODUCT_STATUS
+	  	  FROM PRODUCT 
+		 WHERE PRODUCT_ID = #id#
+	</select>
+	
+	<!-- Product 수정 SQL -->
+	<update id="updateProduct" parameterClass="productVO">
+         
+     	UPDATE PRODUCT
+   		   SET PRODUCT_PRICE = #product_price#,
+         	   PRODUCT_TITLE = #product_title#,
+       		   PRODUCT_CONTENT = #product_content#,
+      		   PRODUCT_MAINIMAGE_PATH = #product_mainimage_path#,
+    		   PRODUCT_TEXTIMAGE_PATH = #product_textimage_path#,
+     		   PRODUCT_SUBIMAGE_PATH = #product_subimage_path#,
+    		   PRODUCT_DATE = #product_date#,
+    		   PRODUCT_COMMENT = #product_comment#,
+    		   PROGRESS = #progress#,
+    		   PRODUCT_STATUS = #product_status#
+ 		 WHERE PRODUCT_ID = #product_id#
+
+	</update>
+	
+	<select id="selectLastProductId" resultClass="long">
+        SELECT  
+            max(PRODUCT_ID)
+        FROM
+            PRODUCT
+
+    </select>
+    
+	<!-- Option 등록 SQL -->
+	<insert id="insertOption" parameterClass="productVO">
+
+		INSERT INTO PRODUCT_OPTION
+					(PRODUCT_ID,
+					OPTION_NAME, 
+					OPTION_PRICE)
+			 VALUES (#product_id#,
+			 		#option_name#, 
+			 		#option_price#);
+
+	</insert>
+
+</sqlMap>

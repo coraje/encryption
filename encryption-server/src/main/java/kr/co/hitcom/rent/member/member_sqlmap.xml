@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<!-- MemberDAOImpl 에서 호출할때 사용 -->
+<sqlMap namespace="Member">
+
+	<!-- 참조변수와 클래스경로 -->
+	<typeAlias alias="memberVO" type="kr.co.hitcom.rent.member.MemberVO" />
+
+
+	<!-- 아이디 중복체크 SQL -->
+	<select id="selectMemberCount" parameterClass="string"
+		resultClass="int">
+
+		SELECT COUNT(*) CNT
+		FROM MEMBER
+		WHERE
+		MEMBER_ID = #id#
+
+
+	</select>
+
+
+	<!-- 회원가입 SQL -->
+	<insert id="insertMember" parameterClass="memberVO">
+
+		INSERT INTO MEMBER
+		(MEMBER_ID, PASSWD, SOCIAL_SECURITY_NUMBER, NAME, MSISDN, EMAIL,
+		JOIN_DATE,
+		WITHRAW_DATE, RESERVE_FUND, GENDER, AGE, MARRIAGE,
+		ANNIVERSARY,
+		MSISDN_SUB, SMS_OPT_IN, EMAIL_OPT_IN, BIRTHDAY)
+		VALUES
+		(#member_id#, #passwd#, #social_security_number#, #name#, #msisdn#,
+		#email#, now(), #withraw_date#, #reserve_fund#, #gender#, #age#,
+		#marriage#, #anniversary#, #msisdn_sub#, #sms_opt_in#, #email_opt_in#,
+		#birthday#);
+
+	</insert>
+	
+    <select id="selectLastMember" resultClass="Long">
+        SELECT  
+            max(MEMBER_NO)
+        FROM
+            MEMBER
+
+    </select>
+	
+	<!-- 회원주소입력 SQL -->
+	<insert id="insertAddress" parameterClass="memberVO">
+
+	INSERT INTO ADDRESS
+				(MEMBER_NO,
+                POST_CODE,
+                ADDRESS_MAIN,
+                ADDRESS_DETAIL)
+		 VALUES (#member_no#,
+        		#post_code#,
+        		#address_main#,
+        		#address_detail#);
+
+	</insert>
+	
+	<!-- 로그인 SQL -->
+	<select id="selectMember" parameterClass="string" resultClass="memberVO">
+		SELECT MEMBER_NO, 
+		       MEMBER_ID,
+		       PASSWD,
+		       NAME,
+		       ISADMIN		
+		  FROM MEMBER		
+ 		 WHERE MEMBER_ID=#id# AND WITHRAW_DATE is null
+	</select>
+
+	<!-- 회원정보수정시 필요한 디폴드값 SQL -->
+	<select id="getMember" parameterClass="Long" resultClass="memberVO">
+
+		SELECT m.MEMBER_NO, 
+			   m.MEMBER_ID,
+			   m.SOCIAL_SECURITY_NUMBER, 
+			   m.NAME,
+			   m.MSISDN,
+			   m.BIRTHDAY,
+			   m.AGE,
+			   m.GENDER,
+			   m.PASSWD,
+			   m.EMAIL,
+			   m.ANNIVERSARY, 
+			   m.MSISDN_SUB, 
+			   m.SMS_OPT_IN, 
+			   m.EMAIL_OPT_IN,
+			   m.MARRIAGE,	
+			   a.POST_CODE,
+               a.ADDRESS_MAIN,
+               a.ADDRESS_DETAIL
+		  FROM MEMBER m
+	INNER JOIN ADDRESS a
+	        ON m.MEMBER_NO = a.MEMBER_NO 
+	     WHERE m.MEMBER_NO=#no#
+
+	</select>
+
+	<!-- 회원정보수정 SQL -->
+	<update id="updateMember" parameterClass="memberVO">
+
+		UPDATE MEMBER
+   		   SET
+   		   	   NAME = #name#,  
+               PASSWD = #passwd#,
+               MSISDN = #msisdn#,
+               ANNIVERSARY = #anniversary#,
+               MSISDN_SUB = #msisdn_sub#,
+               SMS_OPT_IN = #sms_opt_in#,
+               EMAIL_OPT_IN = #email_opt_in#,
+               MARRIAGE = #marriage#
+         WHERE MEMBER_NO = #member_no#
+
+	</update>
+	
+	<!-- 회원주소수정 SQL -->
+	<update id="updateAddress" parameterClass="memberVO">
+
+		UPDATE ADDRESS
+  		   SET 
+   			   MEMBER_NO = #member_no#,
+       		   POST_CODE = #post_code#,
+      		   ADDRESS_MAIN = #address_main#,
+               ADDRESS_DETAIL = #address_detail#
+ 	     WHERE MEMBER_NO = #member_no#
+
+	</update>
+	
+	
+	
+
+
+	<!-- 마이페이지 SQL -->
+	<select id="selectMyPage" parameterClass="memberVO" resultClass="memberVO">
+		SELECT a.PERSONNEL,
+			   a.PAYMENT_STATUS,
+			   a.REVIEW_STATUS,
+			   a.APPLICATION_ID,	
+			   p.PRODUCT_TITLE,
+			   p.PRODUCT_PRICE,
+			   p.PRODUCT_DATE,
+			   p.PROGRESS,
+			   p.PRODUCT_STATUS		   		 
+  		  FROM APPLICATION a
+    INNER JOIN PRODUCT p
+	        ON a.PRODUCT_ID = p.PRODUCT_ID       
+  		 WHERE a.MEMBER_NO = #member_no# 
+  	  ORDER BY a.APPLICATION_ID DESC
+  		 LIMIT #startrow#, #endrow# 
+  		 
+	</select>
+	
+	<select id="selectMyApplicationListCount" parameterClass="Long" resultClass="int">
+        SELECT  
+            count(*) cnt
+        FROM
+            APPLICATION a
+ INNER JOIN PRODUCT p
+	     ON a.PRODUCT_ID = p.PRODUCT_ID
+      WHERE MEMBER_NO = #member_no#     
+    </select>
+	<select id="selectReserveFund" parameterClass="Long" resultClass="int">
+        SELECT  
+            RESERVE_FUND
+        FROM
+            MEMBER
+      WHERE MEMBER_NO = #member_no#     
+    </select>
+    
+	
+		<!-- ID 존재여부 SQL -->
+	<select id="selectIdCount" parameterClass="string"
+		resultClass="int">
+
+		SELECT COUNT(*) CNT
+		FROM MEMBER
+		WHERE
+		MEMBER_ID = #member_id#
+
+
+	</select>
+	
+	<!-- 이메일 중복체크 SQL -->
+	<select id="selectEmailCount" parameterClass="string"
+		resultClass="int">
+
+		SELECT COUNT(*) CNT
+		FROM MEMBER
+		WHERE
+		EMAIL = #email#
+
+
+	</select>
+	
+	<!-- key 입력 SQL -->
+	<insert id="insertKey" parameterClass="string">
+
+	INSERT INTO MAIL
+				(MAIL_KEY,
+                CREATE_DATE)
+                
+		 VALUES (#randomKey#,
+		 		now());
+
+	</insert>
+	
+	<!-- 메일 입력 SQL -->
+	<update id="updatetMail" parameterClass="memberVO">
+
+		UPDATE MAIL
+   		   SET 
+               EMAIL = #email#
+              
+         WHERE MAIL_KEY = #mail_key#
+
+
+	</update>
+
+	<!-- 패스워드찾기 SQL -->
+	<select id="getMemberPass" parameterClass="string" resultClass="memberVO">
+		SELECT PASSWD,
+			   EMAIL	
+		  FROM MEMBER		
+ 		 WHERE MEMBER_ID=#member_id#
+	</select>
+	
+	
+		<!-- 키 체크 SQL -->
+	<select id="selectMail" parameterClass="string"
+		resultClass="memberVO">
+
+		SELECT EMAIL
+		FROM MAIL
+		WHERE
+		MAIL_KEY = #key#
+
+
+	</select>
+	
+	<!-- 횐원 탈퇴 SQL -->
+	<update id="secession" parameterClass="string">
+
+		UPDATE MEMBER
+   		   SET 
+               WITHRAW_DATE = now()
+              
+         WHERE MEMBER_NO = #member_no#
+
+
+	</update>
+</sqlMap>

@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Notice">
+
+	<typeAlias alias="noticeVO" type="kr.co.hitcom.rent.notice.NoticeVO" />
+
+	
+
+
+
+	<!-- Notice 등록 SQL -->
+	<insert id="insertNotice" parameterClass="noticeVO">
+	    
+	    INSERT 
+	      INTO NOTICE
+			   (NOTICE_TITLE, 
+			   NOTICE_CONTENT, 
+			   REGISTRATION_DATE) 
+		VALUES (#notice_title#, 
+			   #notice_content#, 
+			   now())    
+	
+	</insert>
+	
+	
+	<!-- select Notice SQL -->
+	<select id="selectNotice" parameterClass="int" resultClass="noticeVO">
+	    
+	     SELECT NOTICE_ID,
+       		    NOTICE_TITLE,
+       		    NOTICE_CONTENT,
+       		    REGISTRATION_DATE
+  		   FROM NOTICE
+	   	  WHERE NOTICE_ID=#number#
+	</select>
+
+	<!-- Notice 수정 SQL -->
+	<update id="updateNotice" parameterClass="noticeVO">
+         
+         UPDATE NOTICE
+   			SET NOTICE_TITLE = #notice_title#,
+       			NOTICE_CONTENT = #notice_content#
+ 		  WHERE NOTICE_ID = #notice_id#
+
+	</update>
+	
+	<!-- Notice 삭제 SQL -->
+	<delete id="deleteNotice" parameterClass="int">
+         
+         DELETE 
+           FROM NOTICE
+ 		  WHERE NOTICE_ID = #number#
+
+	</delete>
+
+	<select id="selectNoticeListCount" resultClass="int">
+        SELECT  
+            count(*) cnt
+        FROM
+            NOTICE
+    </select>
+
+	<!--  공지사항리스트 SQL -->
+	   <select id="selectNoticeList" parameterClass="noticeVO" resultClass="noticeVO">
+	       
+	  SELECT NOTICE_ID,
+             NOTICE_TITLE,
+             NOTICE_CONTENT,
+             REGISTRATION_DATE
+        FROM NOTICE
+	ORDER BY NOTICE_ID DESC
+  	   LIMIT #startrow#, #endrow#     
+	      
+  		
+    </select>
+
+</sqlMap>

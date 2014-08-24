@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Application">
+
+	<!-- 참조변수와 클래스경로 -->
+	<typeAlias alias="applicationVO" type="kr.co.hitcom.rent.application.ApplicationVO" />
+	
+	<typeAlias alias="optionVO" type="kr.co.hitcom.rent.application.OptionVO" />
+
+
+	<select id="selectApplicationListCount" resultClass="int">
+        SELECT  
+            count(*) cnt
+        FROM
+            APPLICATION
+      WHERE PAYMENT_STATUS = "y" OR PAYMENT_STATUS = "n"    
+    </select>
+    
+	<!--  신청(상품)리스트 SQL -->
+	<select id="selectApplicationList"  parameterClass="applicationVO" resultClass="applicationVO">
+	    	    
+        SELECT PRODUCT_ID,
+       		   PRODUCT_PRICE,
+    		   PRODUCT_TITLE,
+     		   PRODUCT_CONTENT,
+    		   REGISTRATION_DATE,
+    		   PRODUCT_MAINIMAGE_PATH,
+    		   PRODUCT_DATE,
+    		   PRODUCT_COMMENT,
+    		   PRODUCT_TEXTIMAGE_PATH,
+    		   PRODUCT_SUBIMAGE_PATH,
+    		   PROGRESS,
+    		   PRODUCT_STATUS 
+	      FROM PRODUCT
+	     WHERE DELETE_DATE is null   	   
+	     ORDER BY PRODUCT_ID DESC
+	     LIMIT #startrow#, #endrow#
+    </select>
+	  
+	<!-- 신청(상품)상세보기 SQL -->
+	<select id="selectApplication" parameterClass="Long" resultClass="applicationVO">
+		SELECT  PRODUCT_ID,
+				PRODUCT_TITLE,
+	      		PRODUCT_COMMENT,
+	      		PRODUCT_CONTENT,
+	      		PRODUCT_PRICE,
+	      		PRODUCT_MAINIMAGE_PATH,
+	      		PRODUCT_TEXTIMAGE_PATH,
+				PRODUCT_SUBIMAGE_PATH,
+	      		PRODUCT_DATE
+	  	  FROM PRODUCT 
+		 WHERE PRODUCT_ID = #product_id#
+	</select>
+	
+		<!-- 신청등록 SQL -->
+	<insert id="insertApplication" parameterClass="applicationVO">
+
+		INSERT 
+	  INTO APPLICATION
+	  	   (MEMBER_NO,
+           PRODUCT_ID,
+           SENDER_NAME,
+           PERSONNEL,
+           APPLICATION_DATE,
+           NAME,
+           GENDER,
+           MSISDN,
+		   BIRTHDAY)
+           
+	VALUES (#member_no#,
+       		#product_id#,
+        	#sender_name#,
+        	#personnel#,
+        	now(),
+        	#name#,
+            #gender#,
+            #msisdn#,
+		    #birthday#);
+	
+	</insert>
+	
+		<!-- 동반자프로필 등록 SQL -->
+	<insert id="insertFriendProfile" parameterClass="applicationVO">
+
+		INSERT 
+		INTO   FRIEND_PROFILE
+			   (APPLICATION_ID,
+               FRIEND_NAME,
+               FRIEND_GENDER,
+               FRIEND_MSISDN,
+               FRIEND_AGE)
+		VALUES (#application_id#,
+               #friend_name#,
+               #friend_gender#,
+        	   #friend_msisdn#,
+               #friend_age#);
+	
+
+	</insert>
+	
+	<select id="selectApplicationRegistrationListCount" resultClass="int">
+         SELECT count(*) cnt
+  		FROM APPLICATION a  
+  INNER JOIN PRODUCT p
+	      ON a.PRODUCT_ID = p.PRODUCT_ID 
+	   WHERE a.PAYMENT_STATUS = "y" OR a.PAYMENT_STATUS = "n"    
+    </select>
+    
+	<!--  신청등록리스트(관리자) SQL -->
+	   <select id="selectApplicationRegistrationList" parameterClass="applicationVO" resultClass="applicationVO">
+      SELECT a.APPLICATION_ID,
+       		 a.MEMBER_NO,
+       		 a.PRODUCT_ID,
+       		 a.SENDER_NAME,
+       		 a.PERSONNEL,
+       		 a.APPLICATION_DATE,
+       		 a.NAME,
+       		 a.GENDER,
+       		 a.MSISDN,
+       	     a.BIRTHDAY,
+       	     a.PAYMENT_STATUS,
+       	     p.PRODUCT_TITLE,
+       	     p.PRODUCT_DATE,
+       	     PRODUCT_PRICE
+  		FROM APPLICATION a  
+  INNER JOIN PRODUCT p
+	      ON a.PRODUCT_ID = p.PRODUCT_ID 
+	   WHERE a.PAYMENT_STATUS = "y" OR a.PAYMENT_STATUS = "n"    
+	ORDER BY a.APPLICATION_ID DESC
+  		LIMIT #startrow#, #endrow#
+  		
+    </select>
+    
+	   <select id="selectLastApplicationId" resultClass="long">
+        SELECT  
+            max(APPLICATION_ID)
+        FROM
+            APPLICATION
+
+    </select>
+	  
+	   <!--  동반자리스트(관리자) SQL -->
+	   <select id="selectFriendList" parameterClass="Long" resultClass="applicationVO">
+      SELECT FRIEND_AGE,
+      		 FRIEND_GENDER,
+      		 FRIEND_MSISDN,
+      		 FRIEND_NAME
+  		FROM FRIEND_PROFILE
+  	   WHERE APPLICATION_ID = #id# 
+  		 		
+    </select>
+	   
+	   <!-- 결제상태변경 SQL -->
+	<update id="updatePaymentStatus" parameterClass="applicationVO">
+
+		UPDATE APPLICATION
+   		   SET 
+               PAYMENT_STATUS = #payment_status#,
+               PAYMENT_DATE   = now()
+         WHERE APPLICATION_ID = #application_id#
+
+	</update>
+	
+	   <!-- 3일초과자 청소 SQL -->
+	<update id="cleaning" parameterClass="string">
+
+		UPDATE APPLICATION
+   		   SET 
+               PAYMENT_STATUS = #x#
+         	
+         WHERE (PAYMENT_STATUS = "n" AND NOT APPLICATION_DATE > DATE_SUB(NOW(), INTERVAL 3 DAY))
+
+	</update>
+	
+	<!--  Option 리스트 SQL -->
+	<select id="selectOptionList"  parameterClass="Long" resultClass="optionVO">
+	    	    
+        SELECT OPTION_ID,
+       		   OPTION_NAME,
+    		   OPTION_PRICE 
+	      FROM PRODUCT_OPTION
+	     WHERE PRODUCT_ID = #oid#
+	     ORDER BY OPTION_ID
+    </select>
+    
+		<!-- User 옵션 SQL -->
+	<insert id="insertUserOption" parameterClass="optionVO">
+
+		INSERT 
+		INTO   USER_OPTION
+			   (APPLICATION_ID,
+               OPTION_ID,
+               QUANTITY)
+		VALUES (#application_id#,
+               #option_id#,
+               #quantity#);
+	
+
+	</insert>
+	
+	<!-- User Option 리스트 SQL -->
+	<select id="userOptionList"  parameterClass="Long" resultClass="optionVO">
+	    	    
+        SELECT uo.USER_OPTION_ID,
+       		   uo.APPLICATION_ID,
+    		   uo.OPTION_ID,
+    		   uo.QUANTITY,
+    		   po.OPTION_PRICE,
+    		   po.OPTION_NAME 
+	      FROM USER_OPTION uo
+    INNER JOIN PRODUCT_OPTION po
+    		ON uo.OPTION_ID = po.OPTION_ID 
+	     WHERE uo.APPLICATION_ID = #application_id#
+	     ORDER BY uo.USER_OPTION_ID
+    </select>
+    
+	 <!--  결제정보 SQL -->
+	   <select id="paymentInformation" parameterClass="Long" resultClass="applicationVO">
+      SELECT a.PERSONNEL, p.PRODUCT_PRICE
+  		FROM APPLICATION a 
+  	   INNER JOIN PRODUCT p 
+  	      ON a.PRODUCT_ID = p.PRODUCT_ID
+ 	   WHERE a.APPLICATION_ID = #application_id#
+  		 		
+    </select>
+	   
+</sqlMap>

@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Review">
+
+	<typeAlias alias="reviewVO" type="kr.co.hitcom.rent.review.ReviewVO" />
+
+	<!-- review 등록 SQL -->
+	<insert id="insertReview" parameterClass="reviewVO">
+	    
+	    INSERT 
+	      INTO REVIEW
+	      	   (MEMBER_NO,
+               REVIEW_TITLE,
+               REVIEW_CONTENT,
+               REVIEW_RATING,
+               REGISTRATION_DATE,
+               PRODUCT_STATUS,
+               APPLICATION_ID)
+		VALUES (#member_no#,
+               #review_title#,
+               #review_content#,
+               #review_rating#,
+               now(),
+               #product_status#,
+               #application_id#); 
+	
+	</insert>
+	
+	<!-- image 등록 SQL -->
+	<insert id="insertReviewImage" parameterClass="reviewVO">
+	    
+	    INSERT 
+	    INTO   IMAGE
+	    	   (REVIEW_ID,
+	           IMAGE_PASS,
+	           THUMB_NAIL_PATH, 
+	           UPLOAD_DATE)
+		VALUES (#review_id#, 
+		       #image_pass#,
+		       #thumb_nail_path#, 
+		       now());
+	
+	</insert>
+	
+	<!-- status 업데이트 SQL -->
+	<update id="insertReviewStatus" parameterClass="reviewVO">
+	    
+	    UPDATE APPLICATION
+   		   SET REVIEW_STATUS = #review_status#
+         	  
+ 		 WHERE APPLICATION_ID = #application_id#
+	
+	</update>
+
+	
+	  <select id="selectLastReview" resultClass="Long">
+        SELECT  
+            max(REVIEW_ID)
+        FROM
+            REVIEW
+
+    </select>
+
+	 <!-- 호텔 count SQL -->
+	<select id="selectReviewListCount" parameterClass="string" resultClass="int">
+     SELECT  
+            count(*) cnt
+       FROM
+            REVIEW
+      WHERE PRODUCT_STATUS = #status# AND DELETE_DATE is null 
+      
+     </select>
+      
+     <!-- 기차 count SQL -->
+  	<select id="selectReviewTrainListCount" parameterClass="string" resultClass="int">
+     SELECT  
+            count(*) cnt
+       FROM
+            REVIEW
+      WHERE PRODUCT_STATUS = #status# AND DELETE_DATE is null
+      
+     </select> 
+      
+        <!-- 마을 count SQL -->
+   	<select id="selectReviewVillageListCount" parameterClass="string" resultClass="int">
+     SELECT  
+            count(*) cnt
+       FROM
+            REVIEW
+      WHERE PRODUCT_STATUS = #status# AND DELETE_DATE is null   
+    </select>
+    
+   	 <!-- 검색 count SQL -->
+   	<select id="selectRetrievalListCount" parameterClass="string" resultClass="int">
+     SELECT  
+            count(*) cnt
+       FROM
+            REVIEW
+      WHERE REVIEW_TITLE LIKE CONCAT('%',#retrieval#,'%') AND DELETE_DATE is null   
+    </select>
+
+   	
+   	<!-- 호텔 리뷰리스트 SQL -->
+	   <select id="selectReviewList" parameterClass="reviewVO" resultClass="reviewVO">
+	
+	  SELECT r.REVIEW_ID,
+      		 r.MEMBER_NO,
+       		 r.REVIEW_TITLE,
+       		 r.REVIEW_CONTENT,
+       		 r.REVIEW_RATING,
+       		 r.REGISTRATION_DATE,
+       		 r.DELETE_DATE,
+       		 r.PRODUCT_STATUS,
+       		 r.APPLICATION_ID,
+       		 m.MEMBER_ID,
+       		 i.IMAGE_PASS,
+       		 i.THUMB_NAIL_PATH
+  		FROM REVIEW r
+  INNER JOIN MEMBER m
+	      ON r.MEMBER_NO = m.MEMBER_NO
+  INNER JOIN IMAGE i
+	      ON r.REVIEW_ID = i.REVIEW_ID         
+  	   WHERE r.PRODUCT_STATUS = #product_status# AND r.DELETE_DATE is null   
+  	ORDER BY r.REVIEW_ID DESC
+  	   LIMIT #startrow#, #endrow# 
+   	   
+  		
+    </select>
+    
+	   	<!-- 기차  리뷰리스트 SQL -->
+	   <select id="selectReviewTrainList" parameterClass="reviewVO" resultClass="reviewVO">
+	
+	  SELECT r.REVIEW_ID,
+      		 r.MEMBER_NO,
+       		 r.REVIEW_TITLE,
+       		 r.REVIEW_CONTENT,
+       		 r.REVIEW_RATING,
+       		 r.REGISTRATION_DATE,
+       		 r.DELETE_DATE,
+       		 r.PRODUCT_STATUS,
+       		 r.APPLICATION_ID,
+       		 m.MEMBER_ID,
+       		 i.IMAGE_PASS,
+       		 i.THUMB_NAIL_PATH
+  		FROM REVIEW r
+  INNER JOIN MEMBER m
+	      ON r.MEMBER_NO = m.MEMBER_NO
+  INNER JOIN IMAGE i
+	      ON r.REVIEW_ID = i.REVIEW_ID         
+  	   WHERE r.PRODUCT_STATUS = #product_status# AND r.DELETE_DATE is null   
+  	ORDER BY r.REVIEW_ID DESC
+  	   LIMIT #startrow#, #endrow# 
+  		
+    </select>
+    
+	   	<!-- 마을 리뷰리스트 SQL -->
+	   <select id="selectReviewVillageList" parameterClass="reviewVO" resultClass="reviewVO">
+	
+	   SELECT r.REVIEW_ID,
+      		 r.MEMBER_NO,
+       		 r.REVIEW_TITLE,
+       		 r.REVIEW_CONTENT,
+       		 r.REVIEW_RATING,
+       		 r.REGISTRATION_DATE,
+       		 r.DELETE_DATE,
+       		 r.PRODUCT_STATUS,
+       		 r.APPLICATION_ID,
+       		 m.MEMBER_ID,
+       		 i.IMAGE_PASS,
+       		 i.THUMB_NAIL_PATH
+  		FROM REVIEW r
+  INNER JOIN MEMBER m
+	      ON r.MEMBER_NO = m.MEMBER_NO
+  INNER JOIN IMAGE i
+	      ON r.REVIEW_ID = i.REVIEW_ID         
+  	   WHERE r.PRODUCT_STATUS = #product_status# AND r.DELETE_DATE is null	   
+  	ORDER BY r.REVIEW_ID DESC
+  	   LIMIT #startrow#, #endrow# 
+  		
+    </select>
+    
+	   	<!-- 검색 리뷰리스트 SQL -->
+	   <select id="selectRetrievalList" parameterClass="reviewVO" resultClass="reviewVO">
+	
+	   SELECT r.REVIEW_ID,
+      		 r.MEMBER_NO,
+       		 r.REVIEW_TITLE,
+       		 r.REVIEW_CONTENT,
+       		 r.REVIEW_RATING,
+       		 r.REGISTRATION_DATE,
+       		 r.DELETE_DATE,
+       		 r.PRODUCT_STATUS,
+       		 r.APPLICATION_ID,
+       		 m.MEMBER_ID,
+       		 i.IMAGE_PASS,
+       		 i.THUMB_NAIL_PATH
+  		FROM REVIEW r
+  INNER JOIN MEMBER m
+	      ON r.MEMBER_NO = m.MEMBER_NO
+  INNER JOIN IMAGE i
+	      ON r.REVIEW_ID = i.REVIEW_ID         
+  	   WHERE r.REVIEW_TITLE LIKE CONCAT('%',#retrieval#,'%') AND r.DELETE_DATE is null     
+  	ORDER BY r.REVIEW_ID DESC
+  	   LIMIT #startrow#, #endrow# 
+  		
+    </select>
+    
+	   <!-- 리뷰 삭제 SQL -->
+	<update id="deleteReview" parameterClass="Long">
+         
+         UPDATE REVIEW
+            SET	DELETE_DATE = now()
+ 		  WHERE REVIEW_ID = #id#
+
+	</update>
+   	
+</sqlMap>

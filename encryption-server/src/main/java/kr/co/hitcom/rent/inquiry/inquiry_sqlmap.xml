@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE sqlMap PUBLIC "-//ibatis.apache.org//DTD SQL Map 2.0//EN" 
+    "http://ibatis.apache.org/dtd/sql-map-2.dtd">
+
+<sqlMap namespace="Inquiry">
+
+	<typeAlias alias="inquiryVO" type="kr.co.hitcom.rent.inquiry.InquiryVO" />
+
+	
+
+
+
+	<!-- Inquiry 등록 SQL -->
+	<insert id="insertInquiry" parameterClass="inquiryVO">
+	   
+	    INSERT 
+	      INTO INQUIRY(MEMBER_NO,
+               INQUIRY_SUBJECT,
+               INQUIRY_CONTENT,
+               REGISTRATION_DATE,
+               RE_SEQ,
+               RE_LEV,
+               RE_REF)
+		VALUES (#member_no#,
+        	   #inquiry_subject#,
+        	   #inquiry_content#,
+        	   now(),
+        	   #re_seq#,
+        	   #re_lev#,
+        	   #re_ref#)
+	   
+	   
+	</insert>
+	
+	
+	<!-- select Inquiry SQL -->
+	<select id="selectInquiry" parameterClass="int" resultClass="inquiryVO">
+	     
+	    SELECT  i.INQUIRY_ID,
+       		    i.MEMBER_NO,
+                i.INQUIRY_SUBJECT,
+                i.INQUIRY_CONTENT,
+                i.REGISTRATION_DATE,
+                i.RE_SEQ,
+                i.RE_LEV,
+                i.RE_REF,
+                m.NAME,
+                m.MEMBER_NO,
+                m.MEMBER_ID
+           FROM INQUIRY i
+            	INNER JOIN MEMBER m
+	      	 ON i.MEMBER_NO = m.MEMBER_NO  
+          WHERE i.INQUIRY_ID=#number#
+	    
+	</select>
+
+	<!-- Inquiry 수정 SQL -->
+	<update id="updateInquiry" parameterClass="inquiryVO">
+       
+ 	  	 UPDATE INQUIRY
+       		SET	INQUIRY_SUBJECT = #inquiry_subject#,
+       			INQUIRY_CONTENT = #inquiry_content#
+		  WHERE INQUIRY_ID  = #inquiry_id#
+
+	</update>
+	
+	<!-- Inquiry 삭제 SQL -->
+	<update id="deleteInquiry" parameterClass="int">
+         
+         UPDATE INQUIRY
+            SET	DELETE_DATE = now()
+ 		  WHERE INQUIRY_ID = #number#
+
+	</update>
+
+	<!-- 답글 등록 SQL -->
+	<insert id="insertAnswer" parameterClass="inquiryVO">
+	    
+	  	INSERT 
+	      INTO INQUIRY(MEMBER_NO,
+               INQUIRY_SUBJECT,
+               INQUIRY_CONTENT,
+               REGISTRATION_DATE,
+               RE_SEQ,
+               RE_LEV,
+               RE_REF)
+		VALUES (#member_no#,
+        	   #inquiry_subject#,
+        	   #inquiry_content#,
+        	   now(),
+        	   #re_seq#,
+        	   #re_lev#,
+        	   #re_ref#)
+		
+	</insert>
+
+    <select id="selectInquiryListCount" resultClass="int">
+        SELECT count(*) cnt
+          FROM INQUIRY
+        WHERE  DELETE_DATE is null
+    </select>
+
+	<!-- Inquiry 리스트 SQL -->
+	   <select id="selectInquiryList" parameterClass="inquiryVO" resultClass="inquiryVO">
+	       
+	  SELECT i.INQUIRY_ID,
+             i.INQUIRY_SUBJECT,
+             i.INQUIRY_CONTENT,
+             i.MEMBER_NO,
+             i.REGISTRATION_DATE,
+             i.RE_LEV,
+             i.RE_REF,
+             i.RE_SEQ,
+             m.NAME
+        FROM INQUIRY i
+       INNER JOIN MEMBER m
+	      ON i.MEMBER_NO = m.MEMBER_NO  
+	  WHERE  i.DELETE_DATE is null     
+    ORDER BY i.RE_REF DESC,
+        	 i.RE_SEQ 
+         ASC
+  	   LIMIT #startrow#, #endrow#
+  		
+    </select>
+
+	     <select id="selectLastInquiry" resultClass="Long">
+        SELECT  
+            max(INQUIRY_ID)
+        FROM
+            INQUIRY
+
+    </select>
+    
+	     <!-- Inquiry 수정 SQL -->
+	<update id="updateRe" parameterClass="inquiryVO">
+       
+ 	  	 UPDATE INQUIRY
+       		SET	 RE_LEV=#re_lev#,
+             	 RE_REF=#re_ref#,
+             	 RE_SEQ=#re_seq#
+		  WHERE INQUIRY_ID  = #inquiry_id#
+
+	</update>
+
+</sqlMap>
